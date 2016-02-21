@@ -1,16 +1,13 @@
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.sql.*;
 import java.util.Properties;
-
 import org.apache.commons.cli.*;
 import org.postgresql.ds.*;
 
 /*
  * @author mhaden
  * @date 20.02.2016
- * @version 0.3
+ * @version 0.4
  * 
  * HowTo:
  * 
@@ -36,11 +33,13 @@ public class ConnectDatabase {
 	private static String user;
 	private static String password;
 
-	public static void main(String[] args) {
-		/*
-		 * CLI
-		 */
-		
+	/**
+	 * handle cli arguments
+	 * 
+	 * @param args
+	 *            program cli arguments
+	 */
+	public static void cli(String[] args) {
 		// create Options object
 		Options options = new Options();
 
@@ -58,111 +57,90 @@ public class ConnectDatabase {
 
 			// IP
 			ip_adress = cmd.getOptionValue("ip");
-
-			if (ip_adress == null) {
-				ip_adress = "192.168.110.135";
-			}
-
 			// Port
 			port_number = cmd.getOptionValue("port");
-
-			if (port_number == null) {
-				port_number = "5432";
-			}
-
 			// Database Name
 			database = cmd.getOptionValue("d");
-
-			if (database == null) {
-				database = "schokofabrik";
-			}
-
 			// Username
 			user = cmd.getOptionValue("u");
-
-			if (user == null) {
-				user = "schokouser";
-			}
-
 			// Password
 			password = cmd.getOptionValue("p");
-
-			if (password == null) {
-				password = "schokouser";
-			}
+			// connect to database
+			db_connect();
 
 		} catch (ParseException exp) {
 			System.err.println("Parsing failed.  Reason: " + exp.getMessage());
-
 			// automatically generate the help statement
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("ConnectDatabase", options, true);
 		}
-		
-		/*
-		 * Properties File
-		 */
-		if (args.length == 0) {
-			Properties prop = new Properties();
-			InputStream input = null;
+	}
 
-			try {
-				input = new FileInputStream("settings.properties");
+	/**
+	 * read values from properties file
+	 */
+	public static void read_property() {
+		Properties prop = new Properties();
+		InputStream input = null;
 
-				// load properties file
-				prop.load(input);
-				
-				// IP
-				ip_adress = prop.getProperty("ip_adress");
+		try {
+			input = new FileInputStream("settings.properties");
+			// load properties file
+			prop.load(input);
+			// IP
+			ip_adress = prop.getProperty("ip_adress");
+			// Port
+			port_number = prop.getProperty("port_number");
+			// Database Name
+			database = prop.getProperty("database");
+			// Username
+			user = prop.getProperty("user");
+			// Password
+			password = prop.getProperty("password");
 
-				if (ip_adress == null) {
-					ip_adress = "192.168.110.135";
-				}
-
-				// Port
-				port_number = prop.getProperty("port_number");
-
-				if (port_number == null) {
-					port_number = "5432";
-				}
-
-				// Database Name
-				database = prop.getProperty("database");
-
-				if (database == null) {
-					database = "schokofabrik";
-				}
-
-				// Username
-				user = prop.getProperty("user");
-
-				if (user == null) {
-					user = "schokouser";
-				}
-
-				// Password
-				password = prop.getProperty("password");
-
-				if (password == null) {
-					password = "schokouser";
-				}
-				
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			} finally {
-				if (input != null) {
-					try {
-						input.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} finally {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
 		}
+	}
+
+	/**
+	 * set default value if some input is empty
+	 */
+	public static void default_value() {
+		if (ip_adress == null) {
+			ip_adress = "192.168.110.135";
+		}
+		if (port_number == null) {
+			port_number = "5432";
+		}
+		if (database == null) {
+			database = "schokofabrik";
+		}
+		if (user == null) {
+			user = "schokouser";
+		}
+		if (password == null) {
+			password = "schokouser";
+		}
+	}
+
+	/**
+	 * database connection
+	 */
+	public static void db_connect() {
+		default_value();
 
 		// create datasource und konfigurate
 		PGSimpleDataSource ds = new PGSimpleDataSource();
-		// server IP adress
+		// server IP adress and port
 		ds.setServerName(ip_adress + ":" + port_number);
 		// databasename
 		ds.setDatabaseName(database);
@@ -183,6 +161,21 @@ public class ConnectDatabase {
 			}
 		} catch (SQLException sql) {
 			sql.printStackTrace(System.err);
+		}
+	}
+
+	/**
+	 * main method
+	 * 
+	 * @param args
+	 *            start arguments
+	 */
+	public static void main(String[] args) {
+		if (args.length == 0) { // use properties file if no arguments are given
+			read_property();
+			db_connect();
+		} else {
+			cli(args);
 		}
 	}
 }
