@@ -1,4 +1,8 @@
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
+import java.util.Properties;
 
 import org.apache.commons.cli.*;
 import org.postgresql.ds.*;
@@ -6,20 +10,20 @@ import org.postgresql.ds.*;
 /*
  * @author mhaden
  * @date 20.02.2016
- * @version 0.2
+ * @version 0.3
  * 
  * HowTo:
  * 
- * 	Anpassen von
+ * Open:
  * /etc/postgresql/9.3/main/pg_hba.conf
  * 
- * Hinzufuegen
+ * Add:
  * line 93:
  * host	schokofabrik	schokouser	192.168.110.0/24	md5
  * 
  * host	datenbankname	username	ip adresse			md5
  * 
- * Anpassen von
+ * Modify:
  * /etc/postgresql/9.3/main/postgresql.conf
  * line 59: 
  * listen_addresses= '*'
@@ -33,6 +37,10 @@ public class ConnectDatabase {
 	private static String password;
 
 	public static void main(String[] args) {
+		/*
+		 * CLI
+		 */
+		
 		// create Options object
 		Options options = new Options();
 
@@ -84,32 +92,92 @@ public class ConnectDatabase {
 			}
 
 		} catch (ParseException exp) {
-			// oops, something went wrong
 			System.err.println("Parsing failed.  Reason: " + exp.getMessage());
 
 			// automatically generate the help statement
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("ConnectDatabase", options, true);
 		}
+		
+		/*
+		 * Properties File
+		 */
+		if (args.length == 0) {
+			Properties prop = new Properties();
+			InputStream input = null;
 
-		// Datenquelle erzeugen und konfigurieren
+			try {
+				input = new FileInputStream("settings.properties");
+
+				// load properties file
+				prop.load(input);
+				
+				// IP
+				ip_adress = prop.getProperty("ip_adress");
+
+				if (ip_adress == null) {
+					ip_adress = "192.168.110.135";
+				}
+
+				// Port
+				port_number = prop.getProperty("port_number");
+
+				if (port_number == null) {
+					port_number = "5432";
+				}
+
+				// Database Name
+				database = prop.getProperty("database");
+
+				if (database == null) {
+					database = "schokofabrik";
+				}
+
+				// Username
+				user = prop.getProperty("user");
+
+				if (user == null) {
+					user = "schokouser";
+				}
+
+				// Password
+				password = prop.getProperty("password");
+
+				if (password == null) {
+					password = "schokouser";
+				}
+				
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			} finally {
+				if (input != null) {
+					try {
+						input.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+
+		// create datasource und konfigurate
 		PGSimpleDataSource ds = new PGSimpleDataSource();
-		// Server IP - Adresse
+		// server IP adress
 		ds.setServerName(ip_adress + ":" + port_number);
-		// Datenbank Name
+		// databasename
 		ds.setDatabaseName(database);
-		// Username
+		// username
 		ds.setUser(user);
-		// Passwort
+		// password
 		ds.setPassword(password);
 		try (
-				// Verbindung herstellen
+				// create connection
 				Connection con = ds.getConnection();
-				// Abfrage vorbereiten und ausfuehren
+				// prepare query and run
 				Statement st = con.createStatement();
 				ResultSet rs = st.executeQuery("SELECT * FROM person");) {
-			// Ergebnisse verarbeiten
-			while (rs.next()) { // Cursor bewegen
+			// handle results
+			while (rs.next()) { // move cursor
 				String wert = rs.getString(2);
 				System.out.println(wert);
 			}
