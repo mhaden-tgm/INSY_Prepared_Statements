@@ -1,6 +1,7 @@
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Enumeration;
 import java.util.Properties;
 
 /*
@@ -12,22 +13,24 @@ import java.util.Properties;
  */
 
 public class PropertiesFile {
+	Properties prop;
+
 	/**
 	 * read values from properties file
 	 * 
-	 * @param propertyname variable name in properties file
+	 * @param propertyname
+	 *            variable name in properties file
 	 * @return value of variable in properties file
 	 */
 	public String read_property(String propertyname) {
-		Properties prop = new Properties();
+		prop = new Properties();
 		InputStream input = null;
 
 		try {
 			input = new FileInputStream("settings.properties");
 			// load properties file
 			prop.load(input);
-				return prop.getProperty(propertyname);
-
+			return prop.getProperty(propertyname);
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		} finally {
@@ -41,5 +44,15 @@ public class PropertiesFile {
 		}
 
 		return null;
+	}
+
+	/**
+	 * list the keys of the properties file
+	 */
+	public void getKeys() {
+		Enumeration<?> names = prop.propertyNames();
+		while (names.hasMoreElements()) {
+			System.out.println(names.nextElement());
+		}
 	}
 }
