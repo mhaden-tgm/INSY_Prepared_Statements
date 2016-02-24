@@ -65,16 +65,15 @@ public class Main {
 			database = property.read_property("database");
 			user = property.read_property("user");
 			password = property.read_property("password");
-			conn.db_connect(ip_adress, port_number, database, user, password);
 		} else {
-			cli.getcli(args);
-			ip_adress = cli.getArgument("ip_adress");
-			port_number = cli.getArgument("port_number");
-			database = cli.getArgument("database");
-			user = cli.getArgument("user");
-			password = cli.getArgument("password");
-			
-			conn.db_connect(ip_adress, port_number, database, user, password);
+			cli.parse(args);
+			ip_adress = cli.getArgument("ip");
+			port_number = cli.getArgument("port");
+			database = cli.getArgument("d");
+			user = cli.getArgument("u");
+			password = cli.getArgument("p");
 		}
+
+		conn.db_connect(ip_adress, port_number, database, user, password);
 	}
 }

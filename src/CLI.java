@@ -9,19 +9,15 @@ import org.apache.commons.cli.*;
  */
 
 public class CLI {
-	private static String ip_adress;
-	private static String port_number;
-	private static String database;
-	private static String user;
-	private static String password;
-
+	private CommandLine cmd;
+	
 	/**
 	 * handle cli arguments
 	 * 
 	 * @param args
 	 *            program cli arguments
 	 */
-	public void getcli(String[] args) {
+	public void parse(String[] args) {
 		// create Options object
 		Options options = new Options();
 
@@ -35,17 +31,7 @@ public class CLI {
 		CommandLineParser parser = new DefaultParser();
 
 		try {
-			CommandLine cmd = parser.parse(options, args);
-			// IP
-			ip_adress = cmd.getOptionValue("ip");
-			// Port
-			port_number = cmd.getOptionValue("port");
-			// Database Name
-			database = cmd.getOptionValue("d");
-			// Username
-			user = cmd.getOptionValue("u");
-			// Password
-			password = cmd.getOptionValue("p");
+			cmd = parser.parse(options, args);
 
 		} catch (ParseException exp) {
 			System.err.println("Parsing failed.  Reason: " + exp.getMessage());
@@ -62,24 +48,6 @@ public class CLI {
 	 * @return value from argument
 	 */
 	public String getArgument(String argumentname) {
-		switch (argumentname) {
-		case "ip_adress":
-			return ip_adress;
-
-		case "port_number":
-			return port_number;
-
-		case "database":
-			return database;
-
-		case "user":
-			return user;
-
-		case "password":
-			return password;
-		default:
-			break;
-		}
-		return null;
+		return cmd.getOptionValue(argumentname);
 	}
 }
