@@ -27,6 +27,7 @@ public class CLI {
 		options.addOption("d", true, "Database Name");
 		options.addOption("u", true, "Username");
 		options.addOption("p", true, "Password");
+		options.addOption("c", true, "Configuration Properties File");
 
 		CommandLineParser parser = new DefaultParser();
 

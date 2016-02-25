@@ -1,7 +1,7 @@
 /*
  * @author mhaden
  * @date 20.02.2016
- * @version 0.5
+ * @version 0.6
  * 
  * HowTo:
  * 
@@ -26,6 +26,7 @@ public class Main {
 	private static String database;
 	private static String user;
 	private static String password;
+	private static String property_path;
 
 	/**
 	 * set default value if some input is empty
@@ -59,21 +60,32 @@ public class Main {
 		CLI cli = new CLI();
 		DBConnect conn = new DBConnect();
 
-		if (args.length == 0) { // use properties file if no arguments are given
-			ip_adress = property.read_property("ip_adress");
-			port_number = property.read_property("port_number");
-			database = property.read_property("database");
-			user = property.read_property("user");
-			password = property.read_property("password");
+		// use properties file if no arguments are given
+		if (args.length == 0) {
+			ip_adress = property.read_property("ip_adress", null);
+			port_number = property.read_property("port_number", null);
+			database = property.read_property("database", null);
+			user = property.read_property("user", null);
+			password = property.read_property("password", null);
 		} else {
 			cli.parse(args);
-			ip_adress = cli.getArgument("ip");
-			port_number = cli.getArgument("port");
-			database = cli.getArgument("d");
-			user = cli.getArgument("u");
-			password = cli.getArgument("p");
+			property_path = cli.getArgument("c");
+			if (property_path != null) {
+				ip_adress = property.read_property("ip_adress", property_path);
+				port_number = property.read_property("port_number", property_path);
+				database = property.read_property("database", property_path);
+				user = property.read_property("user", property_path);
+				password = property.read_property("password", property_path);
+			} else {
+				ip_adress = cli.getArgument("ip");
+				port_number = cli.getArgument("port");
+				database = cli.getArgument("d");
+				user = cli.getArgument("u");
+				password = cli.getArgument("p");
+			}
 		}
 
+		default_value();
 		conn.db_connect(ip_adress, port_number, database, user, password);
 	}
 }

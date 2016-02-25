@@ -13,7 +13,8 @@ import java.util.Properties;
  */
 
 public class PropertiesFile {
-	Properties prop;
+	private Properties prop;
+	private String property_path;
 
 	/**
 	 * read values from properties file
@@ -22,23 +23,27 @@ public class PropertiesFile {
 	 *            variable name in properties file
 	 * @return value of variable in properties file
 	 */
-	public String read_property(String propertyname) {
+	public String read_property(String propertyname, String path) {
 		prop = new Properties();
 		InputStream input = null;
+		property_path = path;
+		if (property_path == null) {
+			property_path = "settings.properties";
+		}
 
 		try {
-			input = new FileInputStream("settings.properties");
+			input = new FileInputStream(property_path);
 			// load properties file
 			prop.load(input);
 			return prop.getProperty(propertyname);
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			System.err.println("Properties file reading failed.  Reason: " + ex.getMessage());
 		} finally {
 			if (input != null) {
 				try {
 					input.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					System.err.println("Properties file reading failed.  Reason: " + e.getMessage());
 				}
 			}
 		}
