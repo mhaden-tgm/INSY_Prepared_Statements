@@ -8,8 +8,7 @@ import java.util.Properties;
  * handle properties file functionality
  * 
  * @author mhaden
- * @date 20.02.2016
- * @version 0.5
+ * @version 0.7
  */
 
 public class PropertiesFile {
@@ -21,6 +20,7 @@ public class PropertiesFile {
 	 * 
 	 * @param propertyname
 	 *            variable name in properties file
+	 * @param path path to properties file
 	 * @return value of variable in properties file
 	 */
 	public String read_property(String propertyname, String path) {
@@ -39,13 +39,13 @@ public class PropertiesFile {
 			prop.load(input);
 			return prop.getProperty(propertyname);
 		} catch (IOException ex) {
-			System.err.println("Properties file reading failed.  Reason: " + ex.getMessage());
+			System.err.println("Properties file reading failed. Reason: " + ex.getMessage());
 		} finally {
 			if (input != null) {
 				try {
 					input.close();
 				} catch (IOException e) {
-					System.err.println("Properties file reading failed.  Reason: " + e.getMessage());
+					System.err.println("Properties file reading failed. Reason: " + e.getMessage());
 				}
 			}
 		}

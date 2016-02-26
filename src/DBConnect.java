@@ -5,8 +5,7 @@ import org.postgresql.ds.PGSimpleDataSource;
  * database connection
  * 
  * @author mhaden
- * @date 20.02.2016
- * @version 0.6
+ * @version 0.7
  */
 
 public class DBConnect {
@@ -52,6 +51,7 @@ public class DBConnect {
 		init_update();
 		init_delete();
 
+		// measure time for loop
 		// INSERT
 		long startTime = System.nanoTime();
 		for (int i = min; i <= max; i++) {
@@ -62,7 +62,6 @@ public class DBConnect {
 		System.out.println("Insert finished after: " + duration + " sec");
 
 		// SELECT
-		// Measure time for statement
 		startTime = System.nanoTime();
 		for (int i = min; i <= max; i++) {
 			select(i);

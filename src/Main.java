@@ -1,18 +1,6 @@
 /**
  * @author mhaden
- * @date 20.02.2016
- * @version 0.6
- * 
- *          HowTo:
- * 
- *          Open: /etc/postgresql/9.3/main/pg_hba.conf
- * 
- *          Add: line 93: host schokofabrik schokouser 192.168.110.0/24 md5
- * 
- *          host datenbankname username ip adresse md5
- * 
- *          Modify: /etc/postgresql/9.3/main/postgresql.conf line 59:
- *          listen_addresses= '*'
+ * @version 0.7
  */
 
 public class Main {
@@ -56,6 +44,7 @@ public class Main {
 	 *            start arguments
 	 */
 	public static void main(String[] args) {
+		System.out.println("#########  Prepared Statements  #########");
 		PropertiesFile property = new PropertiesFile();
 		CLI cli = new CLI();
 		DBConnect conn = new DBConnect();
@@ -67,19 +56,20 @@ public class Main {
 			database = property.read_property("database", null);
 			user = property.read_property("user", null);
 			password = property.read_property("password", null);
-		// if arguments are given, check for -c argument
+			// if arguments are given, check for -c argument
 		} else {
 			cli.parse(args);
 			// read -c argument
 			property_path = cli.getArgument("c");
-			// if -c argument is given, read properties file from path in argument
+			// if -c argument is given, read properties file from path in
+			// argument
 			if (property_path != null) {
 				ip_adress = property.read_property("ip_adress", property_path);
 				port_number = property.read_property("port_number", property_path);
 				database = property.read_property("database", property_path);
 				user = property.read_property("user", property_path);
 				password = property.read_property("password", property_path);
-			// if no -c argument is given, read cli input
+				// if no -c argument is given, read cli input
 			} else {
 				ip_adress = cli.getArgument("ip");
 				port_number = cli.getArgument("port");
