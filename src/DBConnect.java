@@ -1,7 +1,7 @@
 import java.sql.*;
 import org.postgresql.ds.PGSimpleDataSource;
 
-/*
+/**
  * database connection
  * 
  * @author mhaden
@@ -12,8 +12,11 @@ import org.postgresql.ds.PGSimpleDataSource;
 public class DBConnect {
 	private PGSimpleDataSource ds;
 	private Connection con;
+	// minimal value for loop
 	private int min = 50;
+	// maximal value for loop
 	private int max = 10050;
+	// value for division to get seconds
 	private int sec = 1000000000;
 	private PreparedStatement selectPerson, insertPerson, updatePerson, deletePerson = null;
 
@@ -43,6 +46,7 @@ public class DBConnect {
 		// password
 		ds.setPassword(password);
 
+		// initialize connection and prepare statement
 		init_select();
 		init_insert();
 		init_update();
@@ -58,6 +62,7 @@ public class DBConnect {
 		System.out.println("Insert finished after: " + duration + " sec");
 
 		// SELECT
+		// Measure time for statement
 		startTime = System.nanoTime();
 		for (int i = min; i <= max; i++) {
 			select(i);

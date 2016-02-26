@@ -1,23 +1,18 @@
-/*
+/**
  * @author mhaden
  * @date 20.02.2016
  * @version 0.6
  * 
- * HowTo:
+ *          HowTo:
  * 
- * Open:
- * /etc/postgresql/9.3/main/pg_hba.conf
+ *          Open: /etc/postgresql/9.3/main/pg_hba.conf
  * 
- * Add:
- * line 93:
- * host	schokofabrik	schokouser	192.168.110.0/24	md5
+ *          Add: line 93: host schokofabrik schokouser 192.168.110.0/24 md5
  * 
- * host	datenbankname	username	ip adresse			md5
+ *          host datenbankname username ip adresse md5
  * 
- * Modify:
- * /etc/postgresql/9.3/main/postgresql.conf
- * line 59: 
- * listen_addresses= '*'
+ *          Modify: /etc/postgresql/9.3/main/postgresql.conf line 59:
+ *          listen_addresses= '*'
  */
 
 public class Main {
@@ -29,22 +24,27 @@ public class Main {
 	private static String property_path;
 
 	/**
-	 * set default value if some input is empty
+	 * set default values if some input from cli or properties file is empty
 	 */
 	public static void default_value() {
 		if (ip_adress == null) {
+			System.out.println("No value for IP adress in properties file. Using default value.");
 			ip_adress = "192.168.110.135";
 		}
 		if (port_number == null) {
+			System.out.println("No value for port number in properties file. Using default value.");
 			port_number = "5432";
 		}
 		if (database == null) {
+			System.out.println("No value for database in properties file. Using default value.");
 			database = "schokofabrik";
 		}
 		if (user == null) {
+			System.out.println("No value for user in properties file. Using default value.");
 			user = "schokouser";
 		}
 		if (password == null) {
+			System.out.println("No value for password in properties file. Using default value.");
 			password = "schokouser";
 		}
 	}
@@ -67,15 +67,19 @@ public class Main {
 			database = property.read_property("database", null);
 			user = property.read_property("user", null);
 			password = property.read_property("password", null);
+		// if arguments are given, check for -c argument
 		} else {
 			cli.parse(args);
+			// read -c argument
 			property_path = cli.getArgument("c");
+			// if -c argument is given, read properties file from path in argument
 			if (property_path != null) {
 				ip_adress = property.read_property("ip_adress", property_path);
 				port_number = property.read_property("port_number", property_path);
 				database = property.read_property("database", property_path);
 				user = property.read_property("user", property_path);
 				password = property.read_property("password", property_path);
+			// if no -c argument is given, read cli input
 			} else {
 				ip_adress = cli.getArgument("ip");
 				port_number = cli.getArgument("port");
@@ -85,7 +89,9 @@ public class Main {
 			}
 		}
 
+		// set default values if something is null
 		default_value();
+		// connect to database
 		conn.db_connect(ip_adress, port_number, database, user, password);
 	}
 }

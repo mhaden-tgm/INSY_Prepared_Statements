@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Properties;
 
-/*
+/**
  * handle properties file functionality
  * 
  * @author mhaden
@@ -26,7 +26,9 @@ public class PropertiesFile {
 	public String read_property(String propertyname, String path) {
 		prop = new Properties();
 		InputStream input = null;
+		// properties file path
 		property_path = path;
+		// if path is null, use default path
 		if (property_path == null) {
 			property_path = "settings.properties";
 		}

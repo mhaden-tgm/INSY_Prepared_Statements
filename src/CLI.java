@@ -1,7 +1,7 @@
 import org.apache.commons.cli.*;
 
-/*
- * handle CLI functionality
+/**
+ * handles CLI functionality
  * 
  * @author mhaden
  * @date 20.02.2016
@@ -12,7 +12,7 @@ public class CLI {
 	private CommandLine cmd;
 	
 	/**
-	 * handle cli arguments
+	 * handles cli arguments
 	 * 
 	 * @param args
 	 *            program cli arguments
@@ -32,6 +32,7 @@ public class CLI {
 		CommandLineParser parser = new DefaultParser();
 
 		try {
+			// parse arguments
 			cmd = parser.parse(options, args);
 
 		} catch (ParseException exp) {
@@ -43,7 +44,7 @@ public class CLI {
 	}
 
 	/**
-	 * return specific value from cli argument
+	 * return specific value from from given cli argument
 	 * 
 	 * @param argumentname name of the argument
 	 * @return value from argument
