@@ -1,3 +1,4 @@
+package main;
 
 /**
  * @author mhaden
@@ -35,11 +36,12 @@ public class Main {
 			// if -c argument is given, read properties file from path in
 			// argument
 			if (cli.getArgument("c") != null) {
-				connectdata[0] = property.getProperty("ip_adress", property_path);
-				connectdata[1] = property.getProperty("port_number", property_path);
-				connectdata[2] = property.getProperty("database", property_path);
-				connectdata[3] = property.getProperty("user", property_path);
-				connectdata[4] = property.getProperty("password", property_path);
+				property.init(property_path);
+				connectdata[0] = property.getProperty("ip_adress");
+				connectdata[1] = property.getProperty("port_number");
+				connectdata[2] = property.getProperty("database");
+				connectdata[3] = property.getProperty("user");
+				connectdata[4] = property.getProperty("password");
 				// if no -c argument is given, read cli input
 			} else {
 				connectdata[0] = cli.getArgument("ip");

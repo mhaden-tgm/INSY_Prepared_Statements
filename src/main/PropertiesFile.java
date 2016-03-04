@@ -1,3 +1,5 @@
+package main;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +17,10 @@ public class PropertiesFile {
 	private Properties prop;
 	private String property_path;
 
+	public PropertiesFile() {
+		prop = new Properties();
+	}
+
 	/**
 	 * read values from properties file
 	 * 
@@ -24,20 +30,18 @@ public class PropertiesFile {
 	 *            path to properties file
 	 * @return value of variable in properties file
 	 */
-	public String getProperty(String propertyname, String path) {
-		prop = new Properties();
-		InputStream input = null;
-		// properties file path
-		property_path = path;
+	public String getProperty(String propertyname) {
+		return prop.getProperty(propertyname);
+	}
 
+	public boolean init(String path) {
+		InputStream input = null;
 		try {
+			// properties file path
+			property_path = path;
 			input = new FileInputStream(property_path);
 			// load properties file
 			prop.load(input);
-
-			return prop.getProperty(propertyname);
-
-			// return prop.getProperty(propertyname);
 		} catch (IOException ex) {
 			System.err.println("Properties file reading failed. Reason: " + ex.getMessage());
 		} finally {
@@ -45,23 +49,22 @@ public class PropertiesFile {
 				try {
 					input.close();
 				} catch (IOException e) {
-					System.err.println("Properties file reading failed. Reason: " + e.getMessage());
+					System.err.println("Properties file closing failed. Reason: " + e.getMessage());
 				}
 			}
 		}
-
-		return null;
+		return true;
 	}
 
 	/**
-	 * link to read values from properties file setting default path
+	 * link to init setting default path
 	 * 
 	 * @param propertyname
 	 *            key in properties file
-	 * @return value of variable in properties file
+	 * @return execution state
 	 */
-	public String getProperty(String propertyname) {
-		return getProperty(propertyname, "settings.properties");
+	public boolean init() {
+		return init("settings.properties");
 	}
 
 	/**

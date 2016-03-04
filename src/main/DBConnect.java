@@ -1,3 +1,5 @@
+package main;
+
 import java.sql.*;
 import org.postgresql.ds.PGSimpleDataSource;
 
@@ -14,7 +16,7 @@ public class DBConnect {
 	// minimal value for loop
 	private int min = 50;
 	// maximal value for loop
-	private int max = 10050;
+	private int max = 1050;
 	// value for division to get seconds
 	private int sec = 1000000000;
 	private PreparedStatement selectPerson, insertPerson, updatePerson, deletePerson = null;
