@@ -4,7 +4,7 @@ import org.apache.commons.cli.*;
  * handles CLI functionality
  * 
  * @author mhaden
- * @version 0.7
+ * @version 0.9
  */
 
 public class CLI {
@@ -16,8 +16,9 @@ public class CLI {
 	 * 
 	 * @param args
 	 *            program cli arguments
+	 * @return if executed successfully
 	 */
-	public void parse(String[] args) {
+	public boolean init(String[] args) {
 		// create Options object
 		options = new Options();
 
@@ -34,20 +35,24 @@ public class CLI {
 		try {
 			// parse arguments
 			cmd = parser.parse(options, args);
-
+			return true;
 		} catch (ParseException exp) {
 			System.err.println("Parsing failed.  Reason: " + exp.getMessage());
 			// automatically generate the help statement
 			getHelp();
+			return false;
 		}
 	}
 
 	/**
 	 * print cli help
+	 * 
+	 * @return if executed successfully
 	 */
-	public void getHelp() {
+	public boolean getHelp() {
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp("ConnectDatabase", options, true);
+		return true;
 	}
 
 	/**

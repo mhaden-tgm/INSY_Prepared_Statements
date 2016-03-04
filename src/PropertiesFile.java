@@ -8,7 +8,7 @@ import java.util.Properties;
  * handle properties file functionality
  * 
  * @author mhaden
- * @version 0.7
+ * @version 0.9
  */
 
 public class PropertiesFile {
@@ -20,24 +20,24 @@ public class PropertiesFile {
 	 * 
 	 * @param propertyname
 	 *            variable name in properties file
-	 * @param path path to properties file
+	 * @param path
+	 *            path to properties file
 	 * @return value of variable in properties file
 	 */
-	public String read_property(String propertyname, String path) {
+	public String getProperty(String propertyname, String path) {
 		prop = new Properties();
 		InputStream input = null;
 		// properties file path
 		property_path = path;
-		// if path is null, use default path
-		if (property_path == null) {
-			property_path = "settings.properties";
-		}
 
 		try {
 			input = new FileInputStream(property_path);
 			// load properties file
 			prop.load(input);
+
 			return prop.getProperty(propertyname);
+
+			// return prop.getProperty(propertyname);
 		} catch (IOException ex) {
 			System.err.println("Properties file reading failed. Reason: " + ex.getMessage());
 		} finally {
@@ -54,12 +54,27 @@ public class PropertiesFile {
 	}
 
 	/**
-	 * list the keys of the properties file
+	 * link to read values from properties file setting default path
+	 * 
+	 * @param propertyname
+	 *            key in properties file
+	 * @return value of variable in properties file
 	 */
-	public void getKeys() {
+	public String getProperty(String propertyname) {
+		return getProperty(propertyname, "settings.properties");
+	}
+
+	/**
+	 * list the keys of the properties file
+	 * 
+	 * @return execute successfully state
+	 */
+	public boolean getKeys() {
 		Enumeration<?> names = prop.propertyNames();
 		while (names.hasMoreElements()) {
 			System.out.println(names.nextElement());
 		}
+
+		return true;
 	}
 }

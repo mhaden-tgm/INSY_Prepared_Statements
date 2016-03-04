@@ -1,41 +1,11 @@
+
 /**
  * @author mhaden
- * @version 0.7
+ * @version 0.9
  */
 
 public class Main {
-	private static String ip_adress;
-	private static String port_number;
-	private static String database;
-	private static String user;
-	private static String password;
 	private static String property_path;
-
-	/**
-	 * set default values if some input from cli or properties file is empty
-	 */
-	public static void default_value() {
-		if (ip_adress == null) {
-			System.out.println("No value for IP adress in properties file. Using default value.");
-			ip_adress = "192.168.110.135";
-		}
-		if (port_number == null) {
-			System.out.println("No value for port number in properties file. Using default value.");
-			port_number = "5432";
-		}
-		if (database == null) {
-			System.out.println("No value for database in properties file. Using default value.");
-			database = "schokofabrik";
-		}
-		if (user == null) {
-			System.out.println("No value for user in properties file. Using default value.");
-			user = "schokouser";
-		}
-		if (password == null) {
-			System.out.println("No value for password in properties file. Using default value.");
-			password = "schokouser";
-		}
-	}
 
 	/**
 	 * main method
@@ -48,40 +18,41 @@ public class Main {
 		PropertiesFile property = new PropertiesFile();
 		CLI cli = new CLI();
 		DBConnect conn = new DBConnect();
+		String[] connectdata = new String[5];
 
 		// use properties file if no arguments are given
 		if (args.length == 0) {
-			ip_adress = property.read_property("ip_adress", null);
-			port_number = property.read_property("port_number", null);
-			database = property.read_property("database", null);
-			user = property.read_property("user", null);
-			password = property.read_property("password", null);
+			connectdata[0] = property.getProperty("ip_adress");
+			connectdata[1] = property.getProperty("port_number");
+			connectdata[2] = property.getProperty("database");
+			connectdata[3] = property.getProperty("user");
+			connectdata[4] = property.getProperty("password");
 			// if arguments are given, check for -c argument
 		} else {
-			cli.parse(args);
+			cli.init(args);
 			// read -c argument
 			property_path = cli.getArgument("c");
 			// if -c argument is given, read properties file from path in
 			// argument
-			if (property_path != null) {
-				ip_adress = property.read_property("ip_adress", property_path);
-				port_number = property.read_property("port_number", property_path);
-				database = property.read_property("database", property_path);
-				user = property.read_property("user", property_path);
-				password = property.read_property("password", property_path);
+			if (cli.getArgument("c") != null) {
+				connectdata[0] = property.getProperty("ip_adress", property_path);
+				connectdata[1] = property.getProperty("port_number", property_path);
+				connectdata[2] = property.getProperty("database", property_path);
+				connectdata[3] = property.getProperty("user", property_path);
+				connectdata[4] = property.getProperty("password", property_path);
 				// if no -c argument is given, read cli input
 			} else {
-				ip_adress = cli.getArgument("ip");
-				port_number = cli.getArgument("port");
-				database = cli.getArgument("d");
-				user = cli.getArgument("u");
-				password = cli.getArgument("p");
+				connectdata[0] = cli.getArgument("ip");
+				connectdata[1] = cli.getArgument("port");
+				connectdata[2] = cli.getArgument("d");
+				connectdata[3] = cli.getArgument("u");
+				connectdata[4] = cli.getArgument("p");
 			}
 		}
 
 		// set default values if something is null
-		default_value();
 		// connect to database
-		conn.db_connect(ip_adress, port_number, database, user, password);
+		conn.connect(conn.setDefault(connectdata));
+		conn.start();
 	}
 }

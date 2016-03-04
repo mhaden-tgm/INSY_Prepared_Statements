@@ -5,7 +5,7 @@ import org.postgresql.ds.PGSimpleDataSource;
  * database connection
  * 
  * @author mhaden
- * @version 0.7
+ * @version 0.9
  */
 
 public class DBConnect {
@@ -20,97 +20,140 @@ public class DBConnect {
 	private PreparedStatement selectPerson, insertPerson, updatePerson, deletePerson = null;
 
 	/**
-	 * database connection
+	 * set default values if some input from cli or properties file is empty
 	 * 
-	 * @param ip_adress
-	 *            server ip adress
-	 * @param port_number
-	 *            server port number
-	 * @param database
-	 *            database name
-	 * @param user
-	 *            username for login
-	 * @param password
-	 *            password for login
+	 * @param connectdata
+	 *            array of connection values
+	 * @return connection values with default values instead of null
 	 */
-	public void db_connect(String ip_adress, String port_number, String database, String user, String password) {
-		// create datasource und konfigurate
-		ds = new PGSimpleDataSource();
-		// server IP adress and port
-		ds.setServerName(ip_adress + ":" + port_number);
-		// databasename
-		ds.setDatabaseName(database);
-		// username
-		ds.setUser(user);
-		// password
-		ds.setPassword(password);
-
-		// initialize connection and prepare statement
-		init_select();
-		init_insert();
-		init_update();
-		init_delete();
-
-		// measure time for loop
-		// INSERT
-		long startTime = System.nanoTime();
-		for (int i = min; i <= max; i++) {
-			insert(i);
+	public String[] setDefault(String[] connectdata) {
+		if (connectdata[0] == null) {
+			System.out.println("No value for IP adress in properties file. Using default value.");
+			connectdata[0] = "192.168.110.135";
 		}
-		long endTime = System.nanoTime();
-		long duration = (endTime - startTime) / sec;
-		System.out.println("Insert finished after: " + duration + " sec");
-
-		// SELECT
-		startTime = System.nanoTime();
-		for (int i = min; i <= max; i++) {
-			select(i);
+		if (connectdata[1] == null) {
+			System.out.println("No value for port number in properties file. Using default value.");
+			connectdata[1] = "5432";
 		}
-		endTime = System.nanoTime();
-		duration = (endTime - startTime) / sec;
-		System.out.println("Select finished after: " + duration + " sec");
-
-		// UPDATE
-		startTime = System.nanoTime();
-		for (int i = min; i <= max; i++) {
-			update(i);
+		if (connectdata[2] == null) {
+			System.out.println("No value for database in properties file. Using default value.");
+			connectdata[2] = "schokofabrik";
 		}
-		endTime = System.nanoTime();
-		duration = (endTime - startTime) / sec;
-		System.out.println("Update finished after: " + duration + " sec");
-
-		// SELECT
-		startTime = System.nanoTime();
-		for (int i = min; i <= max; i++) {
-			select(i);
+		if (connectdata[3] == null) {
+			System.out.println("No value for user in properties file. Using default value.");
+			connectdata[3] = "schokouser";
 		}
-		endTime = System.nanoTime();
-		duration = (endTime - startTime) / sec;
-		System.out.println("Select finished after: " + duration + " sec");
-
-		// DELETE
-		startTime = System.nanoTime();
-		for (int i = min; i <= max; i++) {
-			delete(i);
+		if (connectdata[4] == null) {
+			System.out.println("No value for password in properties file. Using default value.");
+			connectdata[4] = "schokouser";
 		}
-		endTime = System.nanoTime();
-		duration = (endTime - startTime) / sec;
-		System.out.println("Delete finished after: " + duration + " sec");
 
+		return connectdata;
 	}
 
 	/**
-	 * initialize insert statement
+	 * database connection
+	 * 
+	 * @param connectdata
+	 *            connection values array with [ip_adress, port_number,
+	 *            database, user, password]
+	 * @return execute successfully state
 	 */
-	public void init_insert() {
-		String insertString = "INSERT INTO Person VALUES (?, ?, ?)";
+	public boolean connect(String[] connectdata) {
+		// create datasource und configurate
+		ds = new PGSimpleDataSource();
+		// server IP adress and port
+		ds.setServerName(connectdata[0] + ":" + connectdata[1]);
+		// databasename
+		ds.setDatabaseName(connectdata[2]);
+		// username
+		ds.setUser(connectdata[3]);
+		// password
+		ds.setPassword(connectdata[4]);
 
 		try {
 			con = ds.getConnection();
 			con.setAutoCommit(true);
+			return true;
+		} catch (SQLException e) {
+			System.err.println("Connection failed! " + e.getMessage());
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	/**
+	 * start the prepared statements execution
+	 * 
+	 * @return if executed successfully
+	 */
+	public boolean start() {
+		// initialize connection and prepare statement
+		long startTime;
+		long endTime;
+		long duration;
+		String mode;
+
+		for (int j = 1; j <= 5; j++) {
+			mode = null;
+			startTime = System.nanoTime();
+			for (int i = min; i <= max; i++) {
+				switch (j) {
+				case 1:
+					insert(i, "Max" + i, "Mustermann" + i);
+					mode = "Insert ";
+					break;
+				case 2:
+					select(i);
+					mode = "Select ";
+					break;
+				case 3:
+					update(i, "Martin" + i);
+					mode = "Update ";
+					break;
+				case 4:
+					select(i);
+					mode = "Select ";
+					break;
+				case 5:
+					delete(i);
+					mode = "Delete ";
+					break;
+				default:
+					break;
+				}
+			}
+			endTime = System.nanoTime();
+			duration = (endTime - startTime) / sec;
+			System.out.println(mode + "finished after: " + duration + " sec");
+		}
+		return true;
+	}
+
+	/**
+	 * statement for delete command
+	 * 
+	 * @param number
+	 *            person number
+	 * @param vname
+	 *            firstname
+	 * @param nname
+	 *            lastname
+	 * @return execute successfully state
+	 */
+	public boolean insert(int number, String vname, String nname) {
+		String insertString = "INSERT INTO Person VALUES (?, ?, ?)";
+		try {
 			insertPerson = con.prepareStatement(insertString);
+			insertPerson.setInt(1, number);
+			insertPerson.setString(2, vname);
+			insertPerson.setString(3, nname);
+			insertPerson.executeUpdate();
+
+			return true;
 		} catch (SQLException sql) {
 			System.err.println("Inserting failed.  Reason: " + sql.getMessage());
+			return false;
 		}
 	}
 
@@ -119,47 +162,15 @@ public class DBConnect {
 	 * 
 	 * @param number
 	 *            row number
+	 * @return execute successfully state
 	 */
-	public void insert(int number) {
-		try {
-			insertPerson.setInt(1, number);
-			insertPerson.setString(2, "Max" + number);
-			insertPerson.setString(3, "Mustermann" + number);
-			insertPerson.executeUpdate();
-		} catch (SQLException sql) {
-			System.err.println("Inserting failed.  Reason: " + sql.getMessage());
-		}
-	}
-
-	/**
-	 * initialize select statement
-	 */
-	public void init_select() {
+	public boolean select(int number) {
 		String selectString = "SELECT * from person where nummer=?";
 
 		try {
-			con = ds.getConnection();
-			con.setAutoCommit(true);
 			selectPerson = con.prepareStatement(selectString);
-
-		} catch (SQLException sql) {
-			System.err.println("Selecting failed.  Reason: " + sql.getMessage());
-		}
-	}
-
-	/**
-	 * statement for delete command
-	 * 
-	 * @param number
-	 *            row number
-	 */
-	public void select(int number) {
-		try {
 			selectPerson.setInt(1, number);
 			ResultSet rs = selectPerson.executeQuery();
-
-			// System.out.println("nummer\tvorname\tnachname"); // handle
-			// results
 
 			while (rs.next()) { // move cursor
 				String nummer = rs.getString(1);
@@ -167,24 +178,11 @@ public class DBConnect {
 				String nachname = rs.getString(3);
 				System.out.println(nummer + "\t" + vorname + "\t" + nachname);
 			}
+			return true;
 
 		} catch (SQLException sql) {
 			System.err.println("Selecting failed.  Reason: " + sql.getMessage());
-		}
-	}
-
-	/**
-	 * initialize update statement
-	 */
-	public void init_update() {
-		String deleteString = "UPDATE Person SET vorname = ? WHERE nummer=?";
-
-		try {
-			con = ds.getConnection();
-			con.setAutoCommit(true);
-			updatePerson = con.prepareStatement(deleteString);
-		} catch (SQLException sql) {
-			System.err.println("Updating failed.  Reason: " + sql.getMessage());
+			return false;
 		}
 	}
 
@@ -193,29 +191,21 @@ public class DBConnect {
 	 * 
 	 * @param number
 	 *            row number
+	 * @param vname
+	 *            firstname
+	 * @return execute successfully state
 	 */
-	public void update(int number) {
+	public boolean update(int number, String vname) {
+		String deleteString = "UPDATE Person SET vorname = ? WHERE nummer=?";
 		try {
-			updatePerson.setString(1, "Martin" + number);
+			updatePerson = con.prepareStatement(deleteString);
+			updatePerson.setString(1, vname);
 			updatePerson.setInt(2, number);
 			updatePerson.executeUpdate();
+			return true;
 		} catch (SQLException sql) {
 			System.err.println("Updating failed.  Reason: " + sql.getMessage());
-		}
-	}
-
-	/**
-	 * initialize delete statement
-	 */
-	public void init_delete() {
-		String deleteString = "DELETE FROM Person WHERE nummer=?";
-
-		try {
-			con = ds.getConnection();
-			con.setAutoCommit(true);
-			deletePerson = con.prepareStatement(deleteString);
-		} catch (SQLException sql) {
-			System.err.println("Deleting failed.  Reason: " + sql.getMessage());
+			return false;
 		}
 	}
 
@@ -224,13 +214,18 @@ public class DBConnect {
 	 * 
 	 * @param number
 	 *            row number
+	 * @return execute successfully state
 	 */
-	public void delete(int number) {
+	public boolean delete(int number) {
+		String deleteString = "DELETE FROM Person WHERE nummer=?";
 		try {
+			deletePerson = con.prepareStatement(deleteString);
 			deletePerson.setInt(1, number);
 			deletePerson.executeUpdate();
+			return true;
 		} catch (SQLException sql) {
 			System.err.println("Deleting failed.  Reason: " + sql.getMessage());
+			return false;
 		}
 	}
 }
